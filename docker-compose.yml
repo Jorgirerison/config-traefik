@@ -5,13 +5,22 @@ services:
     container_name: traefik
     command:
       - '--api.dashboard=true'
+      - '--log.level=INFO' # Mostra nos logs o que o Traefik está fazendo (use DEBUG para investigar problemas)
+      - '--accesslog=true' # Registra cada acesso recebido, útil para testar
       - '--providers.docker=true'
+      - '--providers.docker.exposedbydefault=false' # Só publica containers com a label traefik.enable=true
+      - '--providers.docker.network=traefik' # Fala com os apps sempre pela rede "traefik"
       - '--providers.file.filename=/etc/traefik/traefik_dynamic.yml'
       - '--entrypoints.web.address=:80'
+      - '--entrypoints.web.http.redirections.entrypoint.to=websecure' # Redireciona todo HTTP...
+      - '--entrypoints.web.http.redirections.entrypoint.scheme=https' # ...para HTTPS
       - '--entrypoints.websecure.address=:443'
       - '--certificatesresolvers.myresolver.acme.tlschallenge=true'
       - '--certificatesresolvers.myresolver.acme.email=jorgirerison@gmail.com' # Substitua pelo seu email
       - '--certificatesresolvers.myresolver.acme.storage=/letsencrypt/acme.json'
+      # Descomente durante os testes para usar o Let's Encrypt de teste (sem limite de pedidos).
+      # Ao voltar para produção, apague letsencrypt/acme.json para gerar certificados válidos.
+      # - '--certificatesresolvers.myresolver.acme.caserver=https://acme-staging-v02.api.letsencrypt.org/directory'
     ports:
       - '80:80'
       - '443:443'
@@ -22,11 +31,12 @@ services:
     networks:
       - traefik
     labels:
+      - "traefik.enable=true"
       - "traefik.http.routers.traefik-dashboard.rule=Host(`traefik.my-first-vps-with-docker.duckdns.org`)"
       - "traefik.http.routers.traefik-dashboard.service=api@internal"
       - "traefik.http.routers.traefik-dashboard.entrypoints=websecure"
       - "traefik.http.routers.traefik-dashboard.tls.certresolver=myresolver"
-      # - "traefik.http.routers.traefik-dashboard.middlewares=dashboard-auth@file" # Descomente para ativar autenticação
+      - "traefik.http.routers.traefik-dashboard.middlewares=dashboard-auth@file" # Pede usuário e senha no painel
 
 networks:
   traefik:

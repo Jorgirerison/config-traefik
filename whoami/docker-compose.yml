@@ -1,0 +1,19 @@
+# App de teste: responde com informações sobre o próprio pedido.
+# Serve de modelo para colocar qualquer app atrás do Traefik.
+services:
+  whoami:
+    image: traefik/whoami
+    container_name: whoami
+    restart: unless-stopped
+    networks:
+      - traefik # Mesma rede do Traefik, senão ele não alcança o app
+    labels:
+      - "traefik.enable=true" # Obrigatório: o Traefik só publica quem tem essa label
+      - "traefik.http.routers.whoami.rule=Host(`whoami.my-first-vps-with-docker.duckdns.org`)" # Endereço do app
+      - "traefik.http.routers.whoami.entrypoints=websecure" # Só HTTPS (o HTTP já é redirecionado)
+      - "traefik.http.routers.whoami.tls.certresolver=myresolver" # Pede o certificado ao Let's Encrypt
+      - "traefik.http.services.whoami.loadbalancer.server.port=80" # Porta em que o app escuta dentro do container
+
+networks:
+  traefik:
+    external: true # Usa a rede que já existe na VPS

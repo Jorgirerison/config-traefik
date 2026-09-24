@@ -4,8 +4,8 @@ http:
       redirectScheme:
         scheme: https
 
-    # Descomente para habilitar o basic auth
-    # dashboard-auth:
-    #   basicAuth:
-    #     users:
-    #       - 'admin:$2y$05$u8ePgAG18SvWxdvA44wDcOkv5LGHAHJ8EXXkk6Y1LSKDFG7MvKPlu'
+    # Pede usuário e senha (basic auth) no painel
+    dashboard-auth:
+      basicAuth:
+        users:
+          - 'admin:$2y$05$J1ghx.qkMD8mG0IWgAQHtuZ06n/v48idmIORBvtlrIvdGWrLsPsHW'
